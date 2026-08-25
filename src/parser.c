@@ -10,6 +10,7 @@ void init_flags_struct(t_flags *opts, int ac)
     opts->t                 = false;
     opts->a                 = false;
     opts->has_error         = false;
+    opts->help_used         = false;
 }
 
 void set_option(t_flags *opts, char option)
@@ -50,9 +51,16 @@ void parse_args(char **av, t_flags *opts)
                 continue ;
             }
             
-            if (av[i][j] == '-' && av[i][j + 1] && !is_white_space(av[i][j])) {
+            if (av[i][j] == '-') {
 
                 j += 1;
+
+                if (strcmp(av[i], "--help") == 0) {
+                    ft_ls_help();
+                    clean_struct_flags(opts);
+                    opts->help_used = true;
+                    return ;
+                }
 
                 while (av[i][j])
                 {
@@ -75,10 +83,9 @@ void parse_args(char **av, t_flags *opts)
     }
     
     if (opts->operands_count == 0) {
-        opts->operands[0] = malloc(sizeof(char) * 3);
+        opts->operands[0] = malloc(sizeof(char) * 2);
         opts->operands[0][0] = '.';
-        opts->operands[0][1] = '/';
-        opts->operands[0][2] = '\0';
+        opts->operands[0][1] = '\0';
         opts->operands_count++;;
     }
 }
@@ -88,6 +95,5 @@ void clean_struct_flags(t_flags *opts)
     for (size_t i = 0; i < opts->operands_count; i++) {
         free(opts->operands[i]);
     }
-
     free(opts->operands);
 }

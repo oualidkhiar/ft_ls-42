@@ -17,13 +17,14 @@ typedef struct s_flags {
     bool t;
     bool a;
     bool has_error;
+    bool help_used;
 
 } t_flags;
 
 
 void init_flags_struct(t_flags *opts, int ac);
 void parse_args(char **av, t_flags *opts);
-void clean_struct_flags(t_flags *opts, int ac);
+void clean_struct_flags(t_flags *opts);
 void set_option(t_flags *opts, char option);
 
 #endif
