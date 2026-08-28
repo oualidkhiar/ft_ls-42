@@ -11,6 +11,9 @@
 #include <grp.h>
 #include "parser.h"
 
+#define DEFAULT_SIZE    10
+
+
 typedef struct s_metadata {
 
     struct s_metadata   *next_depth;
@@ -22,7 +25,7 @@ typedef struct s_metadata {
 } t_metadata;
 
 
-void ls_entry(t_flags *opts);
+void ls_entry(t_flags *opts, char **args, int args_len);
 void clean_tree(t_metadata *base, size_t size);
 
 #endif

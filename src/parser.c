@@ -31,7 +31,7 @@ void set_option(t_flags *opts, char option)
         opts->a = true;
     }
     else {
-        fprintf(stderr, "ls: invalid option -- '%c'\nTry 'ls --help' for more information.", option);
+        fprintf(stderr, "ls: invalid option -- '%c'\nTry 'ls --help' for more information.\n", option);
         opts->has_error = true;
     }
 }

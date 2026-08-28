@@ -21,22 +21,6 @@ static bool get_file_details(char *fileName, struct stat *st)
     return true;
 }
 
-static size_t get_content_count(DIR *dir, bool count_hiden_files)
-{
-    size_t count = 0;
-    struct dirent *entry;
-
-    while ((entry = readdir(dir)) != NULL) {
-        if (entry->d_name[0] == '.' && !count_hiden_files) {
-            continue ;
-        }
-        count++;
-    }
-
-    rewinddir(dir);
-    return count;
-}
-
 static DIR *open_dir(char *dir_name)
 {
     DIR *dir = opendir(dir_name);
@@ -59,16 +43,15 @@ static t_metadata *get_dir_content(char *dirname, size_t *content_count, t_flags
         return NULL;
     }
 
-    *content_count = get_content_count(dir, opts->a);
-
-    t_metadata *Base = malloc(sizeof(t_metadata) * (*content_count));
-
     struct dirent *entry; 
 
     size_t Base_index = 0;
+    size_t capacity = 1;
 
     char *dir_name;
-
+    
+    t_metadata *Base = malloc(sizeof(t_metadata) * DEFAULT_SIZE);
+    
     dir_name = (dirname[strlen(dirname) - 1] != '/') ? 
         strjoin(dirname, "/") : strdup(dirname);
 
@@ -99,17 +82,28 @@ static t_metadata *get_dir_content(char *dirname, size_t *content_count, t_flags
             current_node.is_dir = true;
         }
 
+        if (Base_index == (DEFAULT_SIZE * capacity)) {
+            t_metadata *tmp = realloc(
+                                        Base, 
+                                        sizeof(t_metadata) * 
+                                        (DEFAULT_SIZE * 
+                                        (++capacity))
+                                    );
+            Base = tmp;
+        }
+
         Base[Base_index++] = current_node;
         free(full_path);
     }
 
+    *content_count = Base_index;
     closedir(dir);
     free(dir_name);
 
     return Base;
 }
 
-static t_metadata *operands_resolver(t_flags *opts)
+static t_metadata *operands_resolver(t_flags *opts, size_t *content_count)
 {
     t_metadata *Base = malloc(sizeof(t_metadata) * opts->operands_count);
 
@@ -135,6 +129,8 @@ static t_metadata *operands_resolver(t_flags *opts)
         Base[Base_index++] = current_node;
     }
 
+    *content_count = Base_index;
+
     return Base;
 }
 
@@ -149,12 +145,21 @@ void clean_tree(t_metadata *base, size_t size)
     free(base);
 }
 
-void ls_entry(t_flags *opts)
+void ls_entry(t_flags *opts, char **args, int args_len)
 {
-    t_metadata *Base_node = operands_resolver(opts);
+    init_flags_struct(opts, args_len);
+    parse_args(args, opts);
+    if (
+        opts->help_used ||
+        opts->has_error
+    )
+        return ;
+
+    size_t content_count = 0;
+
+    t_metadata *Base_node = operands_resolver(opts, &content_count);
 
     // if (opts->)
-
-    print_list(Base_node, opts, opts->operands_count, 0, true, NULL);
-    clean_tree(Base_node, opts->operands_count);
+    print_list(Base_node, opts, content_count, 0, true, NULL);
+    clean_tree(Base_node, content_count);
 }
