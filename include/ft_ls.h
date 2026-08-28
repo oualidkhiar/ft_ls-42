@@ -7,7 +7,22 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <errno.h>
+#include <pwd.h>
+#include <grp.h>
 #include "parser.h"
 
+typedef struct s_metadata {
+
+    struct s_metadata   *next_depth;
+    char                *name;
+    struct stat         st;
+    size_t              content_count;
+    bool                is_dir;
+
+} t_metadata;
+
+
+void ls_entry(t_flags *opts);
+void clean_tree(t_metadata *base, size_t size);
 
 #endif

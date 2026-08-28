@@ -13,7 +13,19 @@ bool not_current_or_parent_dir(const char *path)
 
 void ft_ls_help()
 {
-    printf("%s", ls_usage);
+    printf(MENU_COLOR"%s"RESET, ls_usage);
+}
+
+int integer_len(int number)
+{
+    int count = 0;
+
+    while (number)
+    {
+        count++;
+        number /= 10;        
+    }
+    return count;
 }
 
 char *strjoin(const char *s1, const char *s2)
